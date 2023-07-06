@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "ProductSans";
+  src: url("./assets/Product\ Sans\ Regular.ttf");
+}
+@font-face {
+  font-family: "ProductSansBold";
+  src: url("./assets/Product\ Sans\ Bold.ttf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  // font-family: "ProductSans";
+  box-sizing: border-box;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -24,4 +40,20 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+button {
+  outline: none;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+input {
+  border: none;
+  border-radius: 4px;
+  transition: background .2s,color .2s;    
+  outline: none;
 }

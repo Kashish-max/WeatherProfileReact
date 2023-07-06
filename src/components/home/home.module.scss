@@ -1,0 +1,303 @@
+$nav_active_color: #202124;
+$nav_color : #5f6368;
+$btn_color : #1a73e8;
+$btn_active_color: #185abc;
+
+.startup {
+    // padding: 60px 110px;
+    padding: 60px 0;
+    width: 100%;
+    margin: 0 auto;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: space-between;
+    font-family: "ProductSans";
+}
+
+.s__fix {
+    width: 70%;
+    padding-right: 30px;
+}
+
+.s__intro {
+
+    h1 {
+        font-size: 48px;
+        font-weight: 400;
+        letter-spacing: -.5px;
+        color: $nav_active_color;
+
+        span {
+            font-size: 35px;
+            color: rgb(75, 192, 192);
+        }
+    }
+    p {
+        font-size: 20px;
+        color: $nav_active_color;
+        font-weight: lighter;
+        letter-spacing: -0.3px;
+        line-height: 1.6;
+        margin-top: 20px;
+    }
+}
+
+.s__search {
+    width: 100%;
+    margin-top: 50px;
+
+    .s__search_title{
+
+        h2 {
+            font-size: 16px;
+            color: $nav_color;
+            font-weight: 400;
+            letter-spacing: -0.3px;
+        }
+    }
+    .s__search_container {
+        position: relative;
+        width: 70%;
+        margin-top: 10px;
+    }
+
+    // input {
+    //     width: 100%;
+    //     box-shadow: 0 1px 5px #dadce0;
+    //     padding: 15px 50px 15px 15px;
+    //     color: $nav_active_color;
+    // }
+}
+
+.s__variable {
+    width: 50%;
+    transform: translateX(30px);
+
+    .s__info {
+        display: -ms-flexbox;
+        display: flex;
+        // padding-left: 62px;
+        padding-top: 10px;
+
+        h1 {
+            font-size: 52px;
+            font-family: ProductSans;
+            
+            font-weight: lighter;
+            line-height: 0.8;
+            text-transform: uppercase;
+        }
+        .sub__info {
+            margin-left: 10px;
+            span:nth-child(2){
+                margin-top: 4px;
+            }
+            .span {  
+                display: block;
+                color: $nav_color;
+                span {
+                    color: rgb(253, 184, 19);
+                }
+            }
+        }
+    }
+    .s__details {
+        // padding-left: 62px;
+        padding-top: 10px;
+
+        ul {
+            list-style: none;
+            display: flex;
+            display: -ms-flexbox;
+            flex-wrap: wrap;
+
+            li {
+                display: block;
+                border-left: 2px solid #fdb813;
+                padding: 1px 0;
+                padding-left: 14px;
+                width: 45%;
+                position: relative;
+                margin-top: 30px;
+                font-size: 15px;
+                
+                a {
+                    color: #3ab0b0;
+                }
+            }
+        }
+    }
+}
+
+
+// search
+.search_wrapper {
+    width: 100%;
+    
+    form {
+        position: relative;
+
+        span {
+            font-size: 14px;
+            color: $nav_color;
+            position: absolute;
+            bottom: -25px;
+            left: 2px;
+        }
+    }
+    .searchForm {
+        height: 46px;
+        box-shadow: 0 1px 5px #dadce0;
+
+        .input_container {
+            height: 100%;
+
+            .x {
+                display: none;
+            }
+        }
+    }
+
+    input {
+        font-size: 14px;
+        box-sizing: border-box;
+        border: none;
+        box-shadow: none;
+        outline: 0;
+        background-color: #fff;
+        color: rgba(0,0,0,.87);
+        width: 100%;
+        height: 100% !important;
+        border-radius: 4px;
+        color: $nav_active_color;
+        text-transform: capitalize;
+        padding: 0 15px;
+        line-height: 40px;        
+    }
+
+    form:nth-child(2) {
+
+        h2 {
+            font-size: 15px;
+            color: $nav_color;
+            font-weight: lighter;
+            letter-spacing: -0.3px;
+            line-height: 1.6;
+            margin-top: 30px;
+        }
+        .coords__control{
+            display: -ms-flexbox;
+            display: block;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            width: 100%;
+
+            input {
+                box-shadow: 0 1px 5px #b9bac0;
+                max-width: 170px;
+                width: 34%;
+                margin-bottom: 20px;
+                margin-right: 10px;
+                padding: 13px 15px;
+            }
+            button {
+                background-color: $btn_color;
+                color: #fff;
+                padding: 12px 15px;
+                outline: none;
+                border: none;
+                border-radius: 4px;
+
+                &:hover {
+                    background-color:  $btn_active_color !important;
+                }            
+            }
+        }
+    }
+}
+
+.search__btn {
+    position: absolute;
+    background: transparent;
+    display: inline-block;
+    top: 50%;
+    transform: translate3d(0,-50%,0);
+    right: 10px;
+    left: auto;
+    -webkit-transition: color .2s;
+    transition: background .2s,color .2s;
+    z-index: 99999;
+    cursor: pointer;
+
+    gg {
+        transition: 0.2s;            
+    }
+    &:hover g g{
+        fill: $nav_active_color !important;
+    }
+}
+
+// graph
+
+.chartLineDiv {
+    width: 100%;
+    height: 290px;
+    margin-top: 30px;
+}
+
+@media (max-width: 1030px) {
+    .startup {
+        display: block;
+        padding: 30px 20px;
+    }
+    .s__fix {
+        width: 100%;
+    }
+    .s__variable {
+        width: 100%;
+        margin-top: 50px;
+        transform: unset;
+        .s__info {
+            padding-left: 0;
+            flex-direction: column;
+            .sub__info {
+                margin-left: 0;
+                margin-top: 10px;
+                display: flex;
+
+                span:nth-child(2) {
+                    margin-top: 0;
+                    margin-left: 20px;
+                }
+            }
+        }
+        .s__details {
+            padding-left: 0;
+        }
+        .s__chart {
+            transform: translateX(-40px);
+            width: calc(100% + 40px);
+        }
+    } 
+    .s__search .s__search_container {
+        width: 100%;
+    }
+    .ng-autocomplete {
+        form:nth-child(2) {
+            .coords__control{
+                justify-content: flex-start;
+                input {
+                    width: unset;
+                    max-width: unset;
+                    margin-right: 10px;
+                }
+            }
+        }
+    }
+    .s__variable .s__details ul li{
+        padding-left: 8px;
+        a {
+            font-size: 13px;
+        }
+    }
+}
