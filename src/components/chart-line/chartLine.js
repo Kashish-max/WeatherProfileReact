@@ -28,42 +28,44 @@ export const chartLine = {
           },
         ],
     },
-    options: {          
-        legend: {
-            align: 'end',
-            labels: {
-              fontColor: "#5f6368",
+    options: {
+        plugins: {
+            legend: {
+                align: 'end',
+                labels: {
+                  fontColor: "#5f6368",
+                },
             },
+    
         },
-        
         maintainAspectRatio: false,
         scales: {
-          xAxes: [{
+          x: {
             ticks: {
-              fontColor: "#5f6368",
+              color: "#5f6368",
             },
-            gridLines: {
-              color: "#fff",
+            grid: {
+              color: "transparent",
               zeroLineColor: "#5f6368",
                 
             },
             scaleLabel: {                
               display: true,
             }
-          }],
-          yAxes: [{
+          },
+          y: {
             ticks: {
               fontColor: "#5f6368",
               lineHeight: 4,
             },
-            gridLines: {
-              color: "#fff",
+            grid: {
+              color: "transparent",
               zeroLineColor: "#5f6368",
             },
             scaleLabel: {
               display: true
             }
-          }]
+          }
         }
     },
 }

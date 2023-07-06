@@ -36,9 +36,9 @@ const Home = () => {
   const [loadingFormOne, setLoadingFormOne] = useState(false);
   const [loadingFormTwo, setLoadingFormTwo] = useState(false);
   const [searchDataset, setSearchDataset] = useState({
-    countries: Country.getAllCountries(),
-    states: State.getAllStates(),
-    cities: City.getAllCities(),
+    countries: Country.getAllCountries().sort(),
+    states: State.getAllStates().sort(),
+    cities: City.getAllCities().sort(),
   });
   const [locationDenied, setLocationDenied] = useState(true);
   const [locationDeniedEnableCity, setLocationDeniedEnableCity] = useState(false);
@@ -52,11 +52,9 @@ const Home = () => {
     humidity: [65, 59, 80, 81, 56, 55, 40],
     temperature: [40, 55, 56, 81, 80, 59, 65],
   })
-  const [chartDataUpdated, setChartDataUpdated] = useState(1);
   const [forceUpdate, setForceUpdate] = useState(false);
 
   const [weather, setWeather] = useState();
-  const [currentWeather, setCurrentWeather] = useState();
   const [currentTemp, setCurrentTemp] = useState();
 
   useEffect(() => {
@@ -65,7 +63,6 @@ const Home = () => {
     setFormattedDate(currentDate.toLocaleDateString(undefined, options)); // Format the date as desired (e.g., "MM/DD/YYYY")
     setFormattedTime(currentDate.toLocaleTimeString([], { timeStyle: 'short' })); // Format the time as desired (e.g., "HH:MM AM/PM")
 
-    onTextSubmit();
     getLocation();
   }, [])
 
@@ -92,21 +89,36 @@ const Home = () => {
 
       const response = await fetch(url.toString());
       const data = await response.json();
-      console.log(data);
       return data;
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+  function binarySearch(arr, val, start = 0, end = arr.length - 1) {
+    const mid = Math.floor((start + end) / 2);
+  
+    if (val === arr[mid].name) {
+      return mid;
+    }
+  
+    if (start >= end) {
+      return -1;
+    }
+  
+    return val < arr[mid].name
+      ? binarySearch(arr, val, start, mid - 1)
+      : binarySearch(arr, val, mid + 1, end);
+  }
+
   function getPlaceCoords(Name, Places) {
-      Name = Name[0].toUpperCase() + Name.toLowerCase().slice(1);
-      for (let i=0; i < Places.length; i++) {
-          if (Places[i].name === Name) {
-              return Places[i];
-          }
-      }
-      return null;
+    Name = Name[0].toUpperCase() + Name.toLowerCase().slice(1);
+    for (let i=0; i < Places.length; i++) {
+        if (Places[i].name === Name) {
+            return Places[i];
+        }
+    }
+    return null;
   }
 
   function updateChartData(el) {
@@ -136,22 +148,19 @@ const Home = () => {
       navigator.geolocation.watchPosition(
         (success) => {
           setSearchParams({ ...searchParams, lat: success.coords.latitude, lon: success.coords.longitude })
-          // this.weatherService
-          //   .getWeatherDataByCoords(success.coords.latitude, success.coords.longitude)
-          //   .subscribe((data) => {
-          //     if (firstLoad) {
-          //       weather = data;
-          //       console.log(weather);
-          //       setCurrentWeather(weather.other.current);
-          //       setCurrentTemp((currentWeather.temp - 273).toFixed(2));
-          //       updateChartData(weather.other)
-          //       this.weatherService.getChart(chartData);
-          //       setFirstLoad(false);
-          //     }
-          //   });
+          fetchWeatherDataByCoords(success.coords.latitude, success.coords.longitude).then((data) => {
+            
+            if (firstLoad) {
+              setWeather(data);
+              setCurrentTemp((data.temp - 273).toFixed(2));
+              updateChartData(data.other)
+              setFirstLoad(false);
+            }
+          })
         },
         (error) => {
           if (error.code == error.PERMISSION_DENIED) {
+            // onTextSubmit();
             setLocationDenied(false);
             setLocationDeniedEnableCity(true);
           }
@@ -236,6 +245,7 @@ const Home = () => {
                             value={searchParams.place}
                             onChange={handleChange}
                             name="place"
+                            required
                           />
                         </div>
 
@@ -288,7 +298,10 @@ const Home = () => {
         <div className={styles.s__variable}>
             <div className={styles.s__info}>
                 <h1>{weather?.name}</h1>
-                <div className={styles.sub__info}><span className={styles.span}>{formattedDate}</span><span className={styles.span}>{formattedTime} <span>{currentTemp && (currentTemp + "°C") }</span> </span></div>
+                <div className={styles.sub__info}>
+                  <span className={styles.span}>{formattedDate}</span>
+                  <span className={styles.span}>{formattedTime} <span>{currentTemp && (currentTemp + "°C") }</span> </span>
+                </div>
             </div>
             <div className={styles.s__details}>
                 <ul>
