@@ -83,7 +83,6 @@ const Home = () => {
     }
     chartLine.data.datasets[0].data = chartData.humidity;
     chartLine.data.datasets[1].data = chartData.temperature;
-
   }, [chartData])
 
   function closeLoading() {
@@ -227,7 +226,7 @@ const Home = () => {
 
 
   return (
-    <section className={styles.startup}>
+    <div className={styles.startup}>
         <div className={styles.s__fix}>
             <div className={styles.s__intro}>
                 <h1>Weather Profile.<br /><span>Weather forecast web application.</span></h1>
@@ -243,7 +242,7 @@ const Home = () => {
                         <div className={styles.input_container}>
                           <input
                             type="text"
-                            placeholder="Country, State, City, Zip Code"
+                            placeholder="Country, State, City"
                             value={searchParams.place}
                             onChange={handleChange}
                             onKeyUp={handleSearchSuugetions}
@@ -343,7 +342,7 @@ const Home = () => {
             </div>
           }
         </div>
-    </section>
+    </div>
 
   )
 }

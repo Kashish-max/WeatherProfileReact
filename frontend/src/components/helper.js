@@ -1,3 +1,5 @@
+const backendUrl = 'https://kashish241001.pythonanywhere.com/api/weather-data/';
+
 export function formatTime(timestamp) {
     const date = new Date(timestamp * 1000);
     const options = {
@@ -44,7 +46,7 @@ export const fetchWeatherDataByCoords = async (latitude, longitude) => {
     };
   
     try {
-      const response = await fetch('http://localhost:8000/api/weather-data/', {
+      const response = await fetch(backendUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
