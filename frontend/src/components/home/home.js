@@ -276,7 +276,7 @@ const Home = () => {
                       </form>
   
                       <form onSubmit={onCoordsSubmit}>
-                        <h2>Search by latitude, longitude (India's geo coordinates: 20, 77)</h2>
+                        <h2>Search by latitude, longitude (India&apos;s geo coordinates: 20, 77)</h2>
                         <div className={styles.coords__control}>
                           <input
                             type="text"
