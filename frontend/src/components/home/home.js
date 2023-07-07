@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Country, State, City } from 'country-state-city';
 import { Line } from 'react-chartjs-2'
 import { chartLine } from '../chart-line/chartLine';
+import { formatTime, getSearchSuggestions, fetchWeatherDataByCoords } from '../helper';
 import styles from './home.module.scss'
 import {
   Chart as ChartJS,
@@ -26,13 +27,15 @@ ChartJS.register(
   Filler
 );
 
-const Home = () => {
 
+const Home = () => {
   const [searchParams, setSearchParams] = useState({
     lat: "",
     lon: "",
-    place: "India",
+    place: "",
   });
+
+  const [loadingChart, setLoadingChart] = useState(false);
   const [loadingFormOne, setLoadingFormOne] = useState(false);
   const [loadingFormTwo, setLoadingFormTwo] = useState(false);
   const [searchDataset, setSearchDataset] = useState({
@@ -40,6 +43,12 @@ const Home = () => {
     states: State.getAllStates().sort(),
     cities: City.getAllCities().sort(),
   });
+  const [allPlaces, setAllPlaces] = useState([...new Set([
+    ...searchDataset.countries, 
+    ...searchDataset.states, 
+    ...searchDataset.cities
+  ].map(item => item.name.toLowerCase()).sort())]);
+
   const [locationDenied, setLocationDenied] = useState(true);
   const [locationDeniedEnableCity, setLocationDeniedEnableCity] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -57,13 +66,14 @@ const Home = () => {
   const [weather, setWeather] = useState();
   const [currentTemp, setCurrentTemp] = useState();
 
+  const [suggestions, setSuggestions] = useState([]);
+
   useEffect(() => {
     const currentDate = new Date();
-    const options = { year: 'numeric', month: 'short', day: 'numeric' }; // Define options to format the date
-    setFormattedDate(currentDate.toLocaleDateString(undefined, options)); // Format the date as desired (e.g., "MM/DD/YYYY")
-    setFormattedTime(currentDate.toLocaleTimeString([], { timeStyle: 'short' })); // Format the time as desired (e.g., "HH:MM AM/PM")
-
-    getLocation();
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    setFormattedDate(currentDate.toLocaleDateString(undefined, options));
+    setFormattedTime(currentDate.toLocaleTimeString([], { timeStyle: 'short' }));
+    // getLocation();
   }, [])
 
   useEffect (() => {
@@ -71,52 +81,23 @@ const Home = () => {
     for(let hour = 0; hour < 8; hour++) {
       chartLine.data.labels[hour] = currentDate.getHours() + hour + ':' + currentDate.getMinutes();
     }
-    
     chartLine.data.datasets[0].data = chartData.humidity;
     chartLine.data.datasets[1].data = chartData.temperature;
 
   }, [chartData])
-  
-  const fetchWeatherDataByCoords = async (latitude, longitude) => {
-    try {
-      const params = {
-        lat: latitude,
-        lon: longitude,
-      };
 
-      const url = new URL('https://weatherapi-beta.vercel.app/weather/latlong');
-      url.search = new URLSearchParams(params).toString();
-
-      const response = await fetch(url.toString());
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  function binarySearch(arr, val, start = 0, end = arr.length - 1) {
-    const mid = Math.floor((start + end) / 2);
-  
-    if (val === arr[mid].name) {
-      return mid;
-    }
-  
-    if (start >= end) {
-      return -1;
-    }
-  
-    return val < arr[mid].name
-      ? binarySearch(arr, val, start, mid - 1)
-      : binarySearch(arr, val, mid + 1, end);
+  function closeLoading() {
+    setLoadingFormOne(false);
+    setLoadingFormTwo(false);
+    setLoadingChart(false);
   }
 
   function getPlaceCoords(Name, Places) {
     Name = Name[0].toUpperCase() + Name.toLowerCase().slice(1);
     for (let i=0; i < Places.length; i++) {
-        if (Places[i].name === Name) {
-            return Places[i];
-        }
+      if (Places[i].name === Name) {
+        return Places[i];
+      }
     }
     return null;
   }
@@ -139,8 +120,6 @@ const Home = () => {
     });
 
     setForceUpdate(prevValue => !prevValue);
-    console.log(chartData)
-    console.log(forceUpdate)
   }
 
   function getLocation() {
@@ -148,19 +127,20 @@ const Home = () => {
       navigator.geolocation.watchPosition(
         (success) => {
           setSearchParams({ ...searchParams, lat: success.coords.latitude, lon: success.coords.longitude })
-          fetchWeatherDataByCoords(success.coords.latitude, success.coords.longitude).then((data) => {
-            
+          setLoadingChart(true)
+          fetchWeatherDataByCoords(success.coords.latitude, success.coords.longitude).then((data) => {            
             if (firstLoad) {
               setWeather(data);
               setCurrentTemp((data.temp - 273).toFixed(2));
               updateChartData(data.other)
-              setFirstLoad(false);
+              closeLoading();
+            } else {
+              closeLoading();
             }
           })
         },
         (error) => {
           if (error.code == error.PERMISSION_DENIED) {
-            // onTextSubmit();
             setLocationDenied(false);
             setLocationDeniedEnableCity(true);
           }
@@ -169,13 +149,19 @@ const Home = () => {
     }
   }
   
-  function getCoords(coords) {
+  function getWeatherDataByCoords(coords) {
+    setLoadingChart(true);
     fetchWeatherDataByCoords(coords.lat, coords.lon).then((data) => {
-      setLoadingFormOne(false);
-      setLoadingFormTwo(false);
-      setWeather(data);
+      if(!data || !data.other) {
+        alert('Place not found')
+        closeLoading();
+        return;
+      }
       console.log(data);
+      setWeather(data);
+      setCurrentTemp((data.other.current.temp - 273).toFixed(2));
       updateChartData(data.other)
+      closeLoading();
     })
   }
 
@@ -183,21 +169,48 @@ const Home = () => {
     setSearchParams({ ...searchParams, [e.target.name]: e.target.value });
   }
 
+  let timeoutId = null;
+  const handleSearchSuugetions = event => {
+    if(!event.target.value) setSuggestions([]);
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      performSearch(event.target.value.toLowerCase());
+    }, 2000);
+  };
+
+  const performSearch = searchTerm => {
+    setSuggestions(getSearchSuggestions(allPlaces, searchTerm, 5));
+  };
+
+  function handlePlaceSelect(e) {
+    setSearchParams({ ...searchParams, place: e.target.innerText });
+    setSuggestions([]);
+    onTextSubmit({place: e.target.innerText});
+  }
+
   function onTextSubmit(e) {
-    e?.preventDefault();
-    if(!searchParams.place) return;
-    let coords = getPlaceCoords(searchParams.place, searchDataset.countries);
-    if(!coords) coords = getPlaceCoords(searchParams.place, searchDataset.states);
-    if (!coords) coords = getPlaceCoords(searchParams.place, searchDataset.cities);
-    
-    if(!coords) return alert('Place not found')
+    try { e.preventDefault() } catch (error) {}
+    setSuggestions([]);
+
+    if(!searchParams.place && !e.place) return;
+    let coords;
+    let place = e.place || searchParams.place;
+    coords = getPlaceCoords(place, searchDataset.countries);
+    if(!coords) coords = getPlaceCoords(place, searchDataset.states);
+    if (!coords) coords = getPlaceCoords(place, searchDataset.cities);
+
+    if(!coords) {
+      alert('Place not found')
+      closeLoading();
+      return;
+    }
     coords = {
       lat: coords.latitude,
       lon: coords.longitude,
     }
-    if (coords) {
+    if (coords?.lat && coords?.lon) {
       setLoadingFormOne(true);
-      getCoords(coords);
+      getWeatherDataByCoords(coords);
     }
   }
 
@@ -205,21 +218,10 @@ const Home = () => {
     e.preventDefault();
     if (searchParams.lat && searchParams.lon) {
       setLoadingFormTwo(true);
-      getCoords(searchParams);
+      getWeatherDataByCoords(searchParams);
     }
   }
 
-  function formatTime(timestamp) {
-    const date = new Date(timestamp * 1000);
-    const options = {
-      hour: 'numeric',
-      minute: 'numeric',
-      timeZone: 'Asia/Kolkata', // Set the desired timezone
-      timeZoneName: 'short',
-    };
-    return date.toLocaleTimeString('en-US', options);
-  };
-  
   function selectEvent(item) {}
   function onChangeSearch(search) {}
 
@@ -244,18 +246,24 @@ const Home = () => {
                             placeholder="Country, State, City, Zip Code"
                             value={searchParams.place}
                             onChange={handleChange}
+                            onKeyUp={handleSearchSuugetions}
                             name="place"
                             required
                           />
+                          {suggestions.length > 0 &&
+                          <div id="dropdown" className="absolute mt-1 z-10 bg-white divide-y divide-gray-100 rounded-md shadow w-full dark:bg-gray-700">
+                            <ul className="relative py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                              {suggestions.map((suggestion, index) => {
+                                return (
+                                  <li key={index}>
+                                    <a onClick={handlePlaceSelect} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{suggestion}</a>
+                                  </li>
+                                )
+                              })}
+                            </ul>
+                          </div>
+                          }
                         </div>
-
-
-                        {/* {searchDataset.countries.map((item, index) => (
-                          <a key={index} dangerouslySetInnerHTML={{ __html: item.name }}></a>
-                        ))}
-
-                        {searchDataset.countries.length === 0 && <div>Not found</div>} */}
-
                         <button className={styles.search__btn} type="submit">
                           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 172 172">
                             <g fill="#000000">
@@ -286,7 +294,7 @@ const Home = () => {
                             onChange={handleChange}
                             required
                           />
-                          <button type="submit">Search</button>
+                          <button type="submit" className="text-white bg-[#050708] hover:bg-[#050708]/90 focus:ring-4 focus:outline-none focus:ring-[#050708]/50 font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#050708]/55">Search</button>
                         </div>
                         {loadingFormTwo && <span>Searching...</span>}
                       </form>
@@ -296,31 +304,44 @@ const Home = () => {
             </div>
         </div>
         <div className={styles.s__variable}>
-            <div className={styles.s__info}>
-                <h1>{weather?.name}</h1>
-                <div className={styles.sub__info}>
-                  <span className={styles.span}>{formattedDate}</span>
-                  <span className={styles.span}>{formattedTime} <span>{currentTemp && (currentTemp + "°C") }</span> </span>
-                </div>
+          {loadingChart ?
+            <div className="absolute z-50 flex justify-center w-full h-full">
+              <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_poqmycwy.json" background="transparent" speed="1.5"  style={{"width": "300px", "height": "300px"}} loop autoplay></lottie-player>
             </div>
-            <div className={styles.s__details}>
-                <ul>
-                    <li><p>Humidity</p> <a>{weather?.other.current.humidity}%</a></li>
-                    <li><p>Pressure</p> <a>{weather?.other.current.pressure} hpa</a></li>
-                    <li><p>Sunrise</p> <a>{weather && formatTime(weather.other.current.sunrise)}</a></li>
-                    <li><p>Sunset</p> <a>{weather && formatTime(weather.other.current.sunset)}</a></li>
-                </ul>
-            </div> 
-            <div className={styles.s__chart}>
-              <div className={styles.chartLineDiv}>
-                <Line
-                    key={forceUpdate ? 'forceUpdate' : 'normal'}
-                    data={chartLine.data}
-                    options={chartLine.options}
-                />
+            :
+            weather?.name ?
+            <>
+              <div className={styles.s__info}>
+                  <h1>{weather?.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")}</h1>
+                  <div className={styles.sub__info}>
+                    <span className={styles.span}>{formattedDate}</span>
+                    <span className={styles.span}>{formattedTime} <span>{currentTemp && (currentTemp + "°C") }</span> </span>
+                  </div>
               </div>
+              <div className={styles.s__details}>
+                  <ul>
+                      <li><p>Humidity</p> <a>{weather?.other.current.humidity}%</a></li>
+                      <li><p>Pressure</p> <a>{weather?.other.current.pressure} hpa</a></li>
+                      <li><p>Sunrise</p> <a>{weather && formatTime(weather.other.current.sunrise)}</a></li>
+                      <li><p>Sunset</p> <a>{weather && formatTime(weather.other.current.sunset)}</a></li>
+                  </ul>
+              </div> 
+              <div className={styles.s__chart}>
+                <div className={styles.chartLineDiv}>
+                  <Line
+                      key={forceUpdate ? 'forceUpdate' : 'normal'}
+                      data={chartLine.data}
+                      options={chartLine.options}
+                  />
+                </div>
+              </div>
+            </>
+            :
+            <div className="flex flex-col items-center justify-center w-full h-full">
+              <div className="text-2xl">Weather data will be displayed here.</div>
+              <div className="font-extralight text-lg text-slate-400">(Search to see weather at your location)</div>
             </div>
-            {/* <div className={styles.s__chart}><div className={styles.charLineDiv}><canvas #mychart id={styles.chartLine}></canvas></div></div>  */}
+          }
         </div>
     </section>
 
