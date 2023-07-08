@@ -280,22 +280,43 @@ $btn_active_color: #185abc;
     .s__search .s__search_container {
         width: 100%;
     }
-    .ng-autocomplete {
-        form:nth-child(2) {
-            .coords__control{
-                justify-content: flex-start;
-                input {
-                    width: unset;
-                    max-width: unset;
-                    margin-right: 10px;
-                }
-            }
-        }
-    }
     .s__variable .s__details ul li{
         padding-left: 8px;
         a {
             font-size: 13px;
         }
+    }
+    .loading {
+        position: relative;
+    }
+}
+
+@media (max-width: 748px) {
+    .s__intro {
+        h1 {
+            line-height: 1;
+        }
+    }
+}
+
+@media (max-width: 420px) {
+    .s__intro {
+        h1 {
+            font-size: 36px;
+    
+            span {
+                font-size: 24px;
+                color: rgb(75, 192, 192);
+            }
+        }
+        p {
+            font-size: 17px;
+        }
+    }
+    .s__search {
+        margin-top: 30px;
+    }
+    .s__variable {
+        margin-top: 30px;
     }
 }

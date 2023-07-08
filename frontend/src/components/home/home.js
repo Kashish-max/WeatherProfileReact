@@ -58,8 +58,8 @@ const Home = () => {
 
   const [chartData, setChartData] = useState({
     labels: [],
-    humidity: [65, 59, 80, 81, 56, 55, 40],
-    temperature: [40, 55, 56, 81, 80, 59, 65],
+    humidity: [65, 59, 80, 81, 56, 55],
+    temperature: [40, 55, 56, 81, 80, 59],
   })
   const [forceUpdate, setForceUpdate] = useState(false);
 
@@ -78,8 +78,13 @@ const Home = () => {
 
   useEffect (() => {
     const currentDate = new Date();
-    for(let hour = 0; hour < 8; hour++) {
-      chartLine.data.labels[hour] = currentDate.getHours() + hour + ':' + currentDate.getMinutes();
+    for(let count = 0; count < 7; count++) {
+      const nextHour = (currentDate.getHours() + count) % 24;
+      const hour = nextHour > 12 ? nextHour - 12 : nextHour === 0 ? 12 : nextHour;
+      const ampm = nextHour >= 12 ? 'PM' : 'AM';
+      const minutes = currentDate.getMinutes();
+
+      chartLine.data.labels[count] = `${hour}:${minutes < 10 ? '0' + minutes : minutes} ${ampm}`;
     }
     chartLine.data.datasets[0].data = chartData.humidity;
     chartLine.data.datasets[1].data = chartData.temperature;
@@ -107,11 +112,17 @@ const Home = () => {
     let newLabels = [];
     let newHumidityData = [];
     let newTemperatureData = [];
-    for (let count = 0; count < 8; count++) {
+    for (let count = 0; count < 7; count++) {
       newHumidityData[count] = el.hourly[count].humidity;
       newTemperatureData[count] = el.hourly[count].temp - 273.15;
-      newLabels[count] = currentDate.getHours() + count + ':' + currentDate.getMinutes()
+
+      const nextHour = (currentDate.getHours() + count) % 24;
+      const hour = nextHour > 12 ? nextHour - 12 : nextHour === 0 ? 12 : nextHour;
+      const ampm = nextHour >= 12 ? 'PM' : 'AM';
+      const minutes = currentDate.getMinutes();
+      newLabels[count] = `${hour}:${minutes < 10 ? '0' + minutes : minutes} ${ampm}`;
     }
+    console.log(newLabels);
     setChartData({
       labels: newLabels,
       humidity: newHumidityData,
@@ -161,6 +172,7 @@ const Home = () => {
       setCurrentTemp((data.other.current.temp - 273).toFixed(2));
       updateChartData(data.other)
       closeLoading();
+      setTimeout(() => {setSuggestions([])}, 1000)
     })
   }
 
@@ -174,7 +186,7 @@ const Home = () => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
       performSearch(event.target.value.toLowerCase());
-    }, 2000);
+    }, 1000);
   };
 
   const performSearch = searchTerm => {
@@ -250,12 +262,12 @@ const Home = () => {
                             required
                           />
                           {suggestions.length > 0 &&
-                          <div id="dropdown" className="absolute mt-1 z-10 bg-white divide-y divide-gray-100 rounded-md shadow w-full dark:bg-gray-700">
-                            <ul className="relative py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                          <div id="dropdown" className="absolute mt-1 z-10 bg-white divide-y divide-gray-100 rounded-md shadow w-full">
+                            <ul className="relative py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
                               {suggestions.map((suggestion, index) => {
                                 return (
                                   <li key={index}>
-                                    <a onClick={handlePlaceSelect} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{suggestion}</a>
+                                    <a onClick={handlePlaceSelect} className="block px-4 py-2 hover:bg-gray-100">{suggestion}</a>
                                   </li>
                                 )
                               })}
@@ -293,7 +305,7 @@ const Home = () => {
                             onChange={handleChange}
                             required
                           />
-                          <button type="submit" className="text-white bg-[#050708] hover:bg-[#050708]/90 focus:ring-4 focus:outline-none focus:ring-[#050708]/50 font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#050708]/55">Search</button>
+                          <button type="submit" className="text-white bg-[#050708] hover:bg-[#050708]/90 focus:ring-4 focus:outline-none focus:ring-[#050708]/50 font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center">Search</button>
                         </div>
                         {loadingFormTwo && <span>Searching...</span>}
                       </form>
@@ -304,7 +316,7 @@ const Home = () => {
         </div>
         <div className={styles.s__variable}>
           {loadingChart ?
-            <div className="absolute z-50 flex justify-center w-full h-full">
+            <div className={"absolute z-50 flex justify-center w-full h-full " + styles.loading}>
               <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_poqmycwy.json" background="transparent" speed="1.5"  style={{"width": "300px", "height": "300px"}} loop autoplay></lottie-player>
             </div>
             :
@@ -337,7 +349,7 @@ const Home = () => {
             </>
             :
             <div className="flex flex-col items-center justify-center w-full h-full">
-              <div className="text-2xl">Weather data will be displayed here.</div>
+              <div className="text-2xl"><span className='text-center'>Weather data will be displayed here.</span></div>
               <div className="font-extralight text-lg text-slate-400">(Search to see weather at your location)</div>
             </div>
           }

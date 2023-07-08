@@ -5,7 +5,7 @@ const Footer = () => {
       <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
         <a
           href="https://openweathermap.org/api"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -22,7 +22,7 @@ const Footer = () => {
 
         <a
           href="https://www.chartjs.org/docs/latest/"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -39,7 +39,7 @@ const Footer = () => {
 
         <a
           href="https://github.com/Kashish-max/WeatherProfileReact"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -56,7 +56,7 @@ const Footer = () => {
 
         <a
           href="https://www.linkedin.com/in/kashish-goyal-327209192/"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100"
           target="_blank"
           rel="noopener noreferrer"
         >
