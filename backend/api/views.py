@@ -1,10 +1,11 @@
 import requests
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-apiKey = '5ab5532999d7f7d9369957d7691f1112';
-urlWeatherApi = "https://api.openweathermap.org/data/2.5/weather";
-urlOneCallApi = "https://api.openweathermap.org/data/2.5/onecall";
+apiKey = settings.OPEN_WEATHER_API_KEY
+urlWeatherApi = "https://api.openweathermap.org/data/2.5/weather"
+urlOneCallApi = "https://api.openweathermap.org/data/2.5/onecall"
 
 
 class GetWeatherDataView(APIView):

@@ -1,4 +1,4 @@
-const backendUrl = 'https://kashish241001.pythonanywhere.com/api/weather-data/';
+const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/weather-data/`;
 
 export function formatTime(timestamp) {
     const date = new Date(timestamp * 1000);

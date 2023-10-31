@@ -233,10 +233,6 @@ const Home = () => {
     }
   }
 
-  function selectEvent(item) {}
-  function onChangeSearch(search) {}
-
-
   return (
     <div className={styles.startup}>
         <div className={styles.s__fix}>
